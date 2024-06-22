@@ -1,6 +1,7 @@
 require('log-timestamp');
+const { TOKEN, INITCHATIDS } = require('./config');
 const TelegramBot      = require('node-telegram-bot-api');
-const token            = 'token_goes_here';
+const token            = TOKEN;
 const bot              = new TelegramBot(token, {polling: true});
 
 const url_Myth         = "http://www.tecson-data.ch/zurich/mythenquai/minianz/startseite.php?position=Mythenquai";
@@ -19,7 +20,7 @@ const msg_option       = {
                          };
  
 var allChatIDs = new Array();
-allChatIDs = [aaaaaaaaa,bbbbbbbbb]; // add ChatIDs of subscribers that you want to add initially after a restart 
+allChatIDs = INITCHATIDS;
 var locationMap = new Map();
 var lastTempMyth = 0;
 var lastTempTief = 0;
@@ -66,7 +67,7 @@ function broadcastTemp(temp, location) {
 /**
  *  Poll the water temperature at certain intervalls
  *  Broadcast a message to all chats on init or if
- *  temperature differences is greater 0.4° C
+ *  temperature difference is greater 0.4° C
  */
 setInterval(function() {
   // Location Mythenquai
