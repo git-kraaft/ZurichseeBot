@@ -3,22 +3,22 @@ const { TOKEN, INITCHATIDS } = require('./config');
 const TelegramBot      = require('node-telegram-bot-api');
 const token            = TOKEN;
 const bot              = new TelegramBot(token, {polling: true});
-
-const url_Myth         = "http://www.tecson-data.ch/zurich/mythenquai/minianz/startseite.php?position=Mythenquai";
-const url_Tief         = "http://www.tecson-data.ch/zurich/tiefenbrunnen/minianz/startseite.php?position=Tiefenbrunnen";
+// use api call instead of webpage
+const url_Myth         = "https://tecdottir.metaodi.ch/measurements/mythenquai?sort=timestamp_cet%20desc&limit=1&offset=0";
+const url_Tief         = "https://tecdottir.metaodi.ch/measurements/tiefenbrunnen?sort=timestamp_cet%20desc&limit=1&offset=0";
 const temperatureParse = require('./tempParse');
 const myth             = "Mythenquai";
 const tief             = "Tiefenbrunnen";
 const noloc            = "noloc";                // only used for disabled message
+const tempDiff         = 0.4;                    // Temperature offset to last message
 const keyboard         = [[myth],[tief]];
-
 const msg_option       = {
                           "parse_mode": "Markdown"
                          ,"reply_markup": {
                             "keyboard": keyboard
                            }
                          };
- 
+
 var allChatIDs = new Array();
 allChatIDs = INITCHATIDS;
 var locationMap = new Map();
@@ -80,7 +80,7 @@ setInterval(function() {
 		    //console.log('broadcasting ' + result);
         broadcastTemp(result, myth);
       } else {
-        if (Math.abs(lastTempMyth - result) >= 0.9) {
+        if (Math.abs(lastTempMyth - result) >= tempDiff) {
           broadcastTemp(result, myth);
           lastTempMyth = result;
         }
@@ -95,7 +95,7 @@ setInterval(function() {
             broadcastTemp(result, tief);
             lastTempTief = result;
           } else {
-            if (Math.abs(lastTempTief - result) >= 0.4) {
+            if (Math.abs(lastTempTief - result) >= tempDiff) {
               broadcastTemp(result, tief);
               lastTempTief = result;
             }
