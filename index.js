@@ -65,19 +65,20 @@ function broadcastTemp(temp, location) {
 }
 
 /**
- *  Poll the water temperature at certain intervalls
- *  Broadcast a message to all chats on init or if
- *  temperature difference is greater 0.4° C
- */
+  *  Poll the water temperature at certain intervalls
+  *  Broadcast a message to all chats on init or if
+  *  temperature difference is greater 0.4° C
+  */
 setInterval(function() {
   // Location Mythenquai
-	//console.log('starting broadcast');
+  //console.log('starting broadcast');
   temperatureParse(url_Myth)
-	  .then(function(result) {
+    .then(function(result) {
       //console.log("Myth " + result + 'last ' + lastTempMyth);
+      if (result === null) return;
       if (!lastTempMyth) {
         lastTempMyth = result;
-		    //console.log('broadcasting ' + result);
+        //console.log('broadcasting ' + result);
         broadcastTemp(result, myth);
       } else {
         if (Math.abs(lastTempMyth - result) >= tempDiff) {
@@ -89,8 +90,9 @@ setInterval(function() {
     .then(function() {
       // Location Tiefenbrunnen
       temperatureParse(url_Tief)
-	      .then(function (result) {
+        .then(function(result) {
           //console.log("Tief " + result);
+          if (result === null) return;
           if (!lastTempTief) {
             broadcastTemp(result, tief);
             lastTempTief = result;
@@ -100,8 +102,8 @@ setInterval(function() {
               lastTempTief = result;
             }
           }
-	      })
-    })	
+        })
+    })
 }, 10800000); // 10800000 ms (3h)
 
 bot.on('message', (msg) => {
@@ -124,40 +126,40 @@ bot.on('message', (msg) => {
     default:
       url = "";
       loc = "";
-      console.log("nix schlaues: " + msg.text.toString());        
+      console.log("nix schlaues: " + msg.text.toString());
   }
   if (loc !== "") {
     console.log("loc: " + loc + " url: " + url);
     if (loc == noloc) {
       msg_text = "Temperatur beim " + noloc + " wegen Bauarbeiten zur Zeit nicht verfügbar.";
       bot.sendMessage(
-        msg.chat.id
-       ,msg_text
-       ,msg_option
+        msg.chat.id, msg_text, msg_option
       );
     } else {
       var temp = temperatureParse(url);
       temp.then(function(result) {
-        msg_text = "Die Wassertemperatur beim " +  loc + " beträgt: " + result + "° C";
+        msg_text = "Die Wassertemperatur beim " + loc + " beträgt: " + result + "° C";
+        if (result === null) {
+          bot.sendMessage(msg.chat.id, "Die Daten konnten nicht geladen werden.");
+          console.error("temperatureParse result is null");
+          return;
+        }
         bot.sendMessage(
-          msg.chat.id
-         ,msg_text
-         ,msg_option
+          msg.chat.id, msg_text, msg_option
         );
       }, (err) => {
-          if (err) {
-            bot.sendMessage(msg.chat.id, "Die Daten konnten nicht geladen werden.");
-            console.log(err);
-          }
-        })
+        if (err) {
+          bot.sendMessage(msg.chat.id, "Die Daten konnten nicht geladen werden.");
+          console.log(err);
+        }
+      })
     }
     setChatIDLoc(msg.chat.id, loc);
   } else {
     bot.sendMessage(
-      msg.chat.id
-     ,"*Wassertemperatur Zürichsee*\n" +
-      "Messstation _" + myth + "_ oder _" + tief + "_?"
-     ,msg_option
+      msg.chat.id, "*Wassertemperatur Zürichsee*\n" +
+      "Messstation _" + myth + "_ oder _" + tief + "_?", msg_option
     );
   }
 });
+
