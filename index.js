@@ -1,8 +1,7 @@
 require('log-timestamp');
 const { TOKEN, INITCHATIDS } = require('./config');
 const TelegramBot      = require('node-telegram-bot-api');
-const token            = TOKEN;
-const bot              = new TelegramBot(token, {polling: true});
+const bot              = new TelegramBot(TOKEN, {polling: true});
 // use api call instead of webpage
 const url_Myth         = "https://tecdottir.metaodi.ch/measurements/mythenquai?sort=timestamp_cet%20desc&limit=1&offset=0";
 const url_Tief         = "https://tecdottir.metaodi.ch/measurements/tiefenbrunnen?sort=timestamp_cet%20desc&limit=1&offset=0";
